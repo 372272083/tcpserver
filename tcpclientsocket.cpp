@@ -203,6 +203,7 @@ void TcpClientSocket::dataReceived()
                     emit updateClients(data,data.length());
                     int sub_type = 0;
                     QString i_name = "";
+                    QString assi_msg = "";
                     for(;it != endit;it++)
                     {
                         QString item = *it;
@@ -218,6 +219,7 @@ void TcpClientSocket::dataReceived()
                                 sub_type = dataType;
 
                                 dataType += 100;
+                                bool iswritedata = true;
 
                                 if(tok)
                                 {
@@ -241,6 +243,16 @@ void TcpClientSocket::dataReceived()
                                                     if(row > 0)
                                                     {
                                                         i_name = code;
+                                                        iswritedata = false;
+                                                        sql = "select mcode,name,motor_type,bearing_type from index_motor where mcode='" + code + "'";
+
+                                                        QVector<QString> datas = mdb->query(sql);
+                                                        QVector<QString>::ConstIterator it;
+                                                        for(it=datas.constBegin();it!=datas.constEnd();it++)
+                                                        {
+                                                            assi_msg = *it;
+                                                            break;
+                                                        }
                                                         break;
                                                     }
                                                 }
@@ -262,7 +274,155 @@ void TcpClientSocket::dataReceived()
                                                     if(row > 0)
                                                     {
                                                         i_name = code;
+                                                        iswritedata = false;
+                                                        sql = "select code,name,dmodel,dtype,ipaddress,port from index_device where code='" + code + "'";
+
+                                                        QVector<QString> datas = mdb->query(sql);
+                                                        QVector<QString>::ConstIterator it;
+                                                        for(it=datas.constBegin();it!=datas.constEnd();it++)
+                                                        {
+                                                            assi_msg = *it;
+                                                            break;
+                                                        }
                                                         break;
+                                                    }
+                                                }
+                                            }
+                                            catch(QException e)
+                                            {
+
+                                            }
+                                            break;
+                                        case 3:
+                                            items = dataitem.split(',');
+                                            try
+                                            {
+                                                if(items.size() >= 10)
+                                                {
+                                                    QString code = items[0];
+                                                    QString sql = "select model from index_motortype where model='" + code + "'";
+                                                    int row = mdb->querysqlcount(sql);
+                                                    if(row > 0)
+                                                    {
+                                                        QString tmp = items[8];
+                                                        QChar insulate_class = tmp.at(0);
+                                                        int insulate_class_i = insulate_class.toLatin1() - 65;
+                                                        sql = "select model from index_motortype where model = '" + items[0];
+                                                        sql += "' and work_mode='" + items[1];
+                                                        sql += "' and power_rating=" + items[2];
+                                                        sql += " and rated_voltage=" + items[3];
+                                                        sql += " and rated_current=" + items[4];
+                                                        sql += " and poleNums=" + items[5];
+                                                        sql += " and center_height=" + items[6];
+                                                        sql += " and factor=" + items[7];
+                                                        sql += " and insulate=" + QString::number(insulate_class_i);
+                                                        sql += " and rotate=" + items[9];
+
+                                                        qDebug()<<sql;
+
+                                                        row = mdb->querysqlcount(sql);
+                                                        if(row <= 0)
+                                                        {
+                                                            iswritedata = false;
+                                                            sql = "select model,work_mode,power_rating,rated_voltage,rated_current,poleNums,center_height,factor,insulate,rotate from index_motortype where model='" + code + "'";
+
+                                                            QVector<QString> datas = mdb->query(sql);
+                                                            QVector<QString>::ConstIterator it;
+                                                            for(it=datas.constBegin();it!=datas.constEnd();it++)
+                                                            {
+                                                                assi_msg = *it;
+                                                                break;
+                                                            }
+                                                            i_name = code;
+                                                            iswritedata = false;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            catch(QException e)
+                                            {
+
+                                            }
+                                            break;
+                                        case 4:
+                                            items = dataitem.split(',');
+                                            try
+                                            {
+                                                if(items.size() >= 8)
+                                                {
+                                                    QString code = items[0];
+                                                    QString sql = "select model from index_bearingtype where model='" + code + "'";
+                                                    int row = mdb->querysqlcount(sql);
+                                                    if(row > 0)
+                                                    {
+                                                        sql = "select model from index_bearingtype where model = '" + items[0];
+                                                        sql += "' and btype='" + items[1];
+                                                        sql += "' and rin=" + items[2];
+                                                        sql += " and rout=" + items[3];
+                                                        sql += " and contact_angle=" + items[4];
+                                                        sql += " and bearpitch=" + items[5];
+                                                        sql += " and rotated=" + items[6];
+                                                        sql += " and rotaten=" + items[7];
+
+                                                        qDebug()<<sql;
+
+                                                        row = mdb->querysqlcount(sql);
+                                                        if(row <= 0)
+                                                        {
+                                                            iswritedata = false;
+                                                            sql = "select model,btype,rin,rout,contact_angle,bearpitch,rotated,rotaten from index_bearingtype where model='" + code + "'";
+
+                                                            QVector<QString> datas = mdb->query(sql);
+                                                            QVector<QString>::ConstIterator it;
+                                                            for(it=datas.constBegin();it!=datas.constEnd();it++)
+                                                            {
+                                                                assi_msg = *it;
+                                                                break;
+                                                            }
+                                                            i_name = code;
+                                                            iswritedata = false;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            catch(QException e)
+                                            {
+
+                                            }
+                                            break;
+                                        case 5:
+                                            items = dataitem.split(',');
+                                            try
+                                            {
+                                                if(items.size() >= 4)
+                                                {
+                                                    QString code = items[0];
+                                                    QString sql = "select model from index_devicetype where model='" + code + "'";
+                                                    int row = mdb->querysqlcount(sql);
+                                                    if(row > 0)
+                                                    {
+                                                        sql = "select model from index_devicetype where model = '" + items[0];
+                                                        sql += "' and dtype='" + items[1];
+                                                        sql += "' and pipenum=" + items[2];
+
+                                                        qDebug()<<sql;
+
+                                                        row = mdb->querysqlcount(sql);
+                                                        if(row <= 0)
+                                                        {
+                                                            iswritedata = false;
+                                                            sql = "select model,dtype,pipenum from index_devicetype where model='" + code + "'";
+
+                                                            QVector<QString> datas = mdb->query(sql);
+                                                            QVector<QString>::ConstIterator it;
+                                                            for(it=datas.constBegin();it!=datas.constEnd();it++)
+                                                            {
+                                                                assi_msg = *it;
+                                                                break;
+                                                            }
+                                                            i_name = code;
+                                                            iswritedata = false;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -277,23 +437,24 @@ void TcpClientSocket::dataReceived()
                                     }
 
                                     ///////////////// ready write to database
-                                    /*
-                                    inIt=dataitems.constBegin(),inEndIt=dataitems.constEnd();
-                                    for(;inIt != inEndIt;inIt++)
+                                    if(iswritedata)
                                     {
-                                        QString dataitem = *inIt;
-                                        if (TcpServer::msg_queue.contains(dataType))
+                                        inIt=dataitems.constBegin(),inEndIt=dataitems.constEnd();
+                                        for(;inIt != inEndIt;inIt++)
                                         {
-                                            TcpServer::msg_queue[dataType].enqueue(dataitem);
-                                        }
-                                        else
-                                        {
-                                            QQueue<QString> dataqueue;
-                                            dataqueue.enqueue(dataitem);
-                                            TcpServer::msg_queue[dataType] = dataqueue;
+                                            QString dataitem = *inIt;
+                                            if (TcpServer::msg_queue.contains(dataType))
+                                            {
+                                                TcpServer::msg_queue[dataType].enqueue(dataitem);
+                                            }
+                                            else
+                                            {
+                                                QQueue<QString> dataqueue;
+                                                dataqueue.enqueue(dataitem);
+                                                TcpServer::msg_queue[dataType] = dataqueue;
+                                            }
                                         }
                                     }
-                                    */
                                 }
                             }
                         }
@@ -308,8 +469,9 @@ void TcpClientSocket::dataReceived()
                     }
                     else
                     {
-                        return_msg += "#0#";
+                        return_msg += "#0#" + i_name;
                     }
+                    return_msg += "#" + assi_msg;
                     write(return_msg.toUtf8());
                     continue;
                 }

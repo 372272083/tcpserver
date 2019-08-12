@@ -130,15 +130,15 @@ void SaveSampleThread::run()
 
                     try
                     {
-                        if(items.size() == 5)
+                        if(items.size() >= 8)
                         {
                             QString code = items[0];
                             QString sql = "select model from index_bearingtype where model='" + code + "'";
                             row = db->querysqlcount(sql);
                             if(row==0)
                             {
-                                sql = "insert into index_bearingtype (model,btype,rin,rout,contact_angle) values ('";
-                                sql += items[0] + "','" + items[1] + "'," + items[2] + "," + items[3] + "," + items[4] + ")";
+                                sql = "insert into index_bearingtype (model,btype,rin,rout,contact_angle,bearpitch,rotated,rotaten) values ('";
+                                sql += items[0] + "','" + items[1] + "'," + items[2] + "," + items[3] + "," + items[4] + "," + items[5] + "," + items[6] + "," + items[7] + ")";
                                 sqls.enqueue(sql);
                             }
                         }
